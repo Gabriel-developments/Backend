@@ -1,75 +1,100 @@
-const request = require('supertest');
-const app = require('express')();
+// routes/clockRoutes.js
+const express = require('express');
+const router = express.Router();
 
-jest.mock('../models/Clockin');
-jest.mock('../models/Clockout');
+// Importa os modelos.
+// Certifique-se de que os caminhos para os modelos estão corretos.
 const Clockin = require('../models/Clockin');
 const Clockout = require('../models/Clockout');
 
-app.use(require('../routes/clockRoutes'));
+/**
+ * Rota POST /
+ * Cria um novo registro de entrada (Clockin).
+ * Espera um corpo de requisição JSON com { petshopName, executorName }.
+ */
+router.post('/', async (req, res) => {
+    try {
+        const { petshopName, executorName } = req.body;
 
-describe('Clock Routes', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+        // Validação básica (opcional, mas recomendado no mundo real)
+        if (!petshopName || !executorName) {
+            return res.status(400).send('petshopName and executorName are required.');
+        }
 
-  describe('POST /', () => {
-    it('should create a new clockin and return ok', async () => {
-      const mockSave = jest.fn().mockResolvedValue({});
-      Clockin.mockImplementation(() => ({
-        save: mockSave,
-      }));
+        // Cria uma nova instância do modelo Clockin
+        const newClockin = new Clockin({ petshopName, executorName });
 
-      const response = await request(app)
-        .post('/')
-        .send({ petshopName: 'Test Shop', executorName: 'Test Executor' });
+        // Salva o registro no banco de dados (simulado)
+        await newClockin.save();
 
-      expect(response.status).toBe(200);
-      expect(response.text).toBe('ok');
-      expect(mockSave).toHaveBeenCalled();
-    });
-  });
-
-  describe('GET /', () => {
-    it('should return all clockins', async () => {
-      const mockFind = jest.fn().mockResolvedValue([{ petshopName: 'Test Shop', executorName: 'Test Executor' }]);
-      Clockin.find = mockFind;
-
-      const response = await request(app).get('/');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual([{ petshopName: 'Test Shop', executorName: 'Test Executor' }]);
-      expect(mockFind).toHaveBeenCalled();
-    });
-  });
-
-  describe('POST /clockout', () => {
-    it('should create a new clockout and return ok', async () => {
-      const mockSave = jest.fn().mockResolvedValue({});
-      Clockout.mockImplementation(() => ({
-        save: mockSave,
-      }));
-
-      const response = await request(app)
-        .post('/clockout')
-        .send({ petshopName: 'Test Shop', executorName: 'Test Executor' });
-
-      expect(response.status).toBe(200);
-      expect(response.text).toBe('ok');
-      expect(mockSave).toHaveBeenCalled();
-    });
-  });
-
-  describe('GET /clockout', () => {
-    it('should return all clockouts', async () => {
-      const mockFind = jest.fn().mockResolvedValue([{ petshopName: 'Test Shop', executorName: 'Test Executor' }]);
-      Clockout.find = mockFind;
-
-      const response = await request(app).get('/clockout');
-
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual([{ petshopName: 'Test Shop', executorName: 'Test Executor' }]);
-      expect(mockFind).toHaveBeenCalled();
-    });
-  });
+        // Retorna "ok" e status 200 conforme o teste espera
+        res.status(200).send('ok');
+    } catch (error) {
+        console.error('Error creating clockin:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
+
+/**
+ * Rota GET /
+ * Retorna todos os registros de entrada (Clockins).
+ */
+router.get('/', async (req, res) => {
+    try {
+        // Busca todos os registros de Clockin no banco de dados (simulado)
+        const clockins = await Clockin.find();
+
+        // Retorna os registros com status 200
+        res.status(200).json(clockins);
+    } catch (error) {
+        console.error('Error fetching clockins:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+/**
+ * Rota POST /clockout
+ * Cria um novo registro de saída (Clockout).
+ * Espera um corpo de requisição JSON com { petshopName, executorName }.
+ */
+router.post('/clockout', async (req, res) => {
+    try {
+        const { petshopName, executorName } = req.body;
+
+        // Validação básica (opcional, mas recomendado no mundo real)
+        if (!petshopName || !executorName) {
+            return res.status(400).send('petshopName and executorName are required.');
+        }
+
+        // Cria uma nova instância do modelo Clockout
+        const newClockout = new Clockout({ petshopName, executorName });
+
+        // Salva o registro no banco de dados (simulado)
+        await newClockout.save();
+
+        // Retorna "ok" e status 200 conforme o teste espera
+        res.status(200).send('ok');
+    } catch (error) {
+        console.error('Error creating clockout:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+/**
+ * Rota GET /clockout
+ * Retorna todos os registros de saída (Clockouts).
+ */
+router.get('/clockout', async (req, res) => {
+    try {
+        // Busca todos os registros de Clockout no banco de dados (simulado)
+        const clockouts = await Clockout.find();
+
+        // Retorna os registros com status 200
+        res.status(200).json(clockouts);
+    } catch (error) {
+        console.error('Error fetching clockouts:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+module.exports = router;

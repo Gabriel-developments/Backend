@@ -2,12 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-<<<<<<< Updated upstream
-
-
-=======
 const Usuario = require('./models/Usuario');
->>>>>>> Stashed changes
 const connectDB = require('./config/db');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -19,8 +14,8 @@ async function initializeAdmin() {
     const adminExists = await Usuario.findOne({ email: 'admin@gmail.com' });
     if (!adminExists) {
         const admin = new Usuario({
-            name: NAME_ADM,
-            email: EMAIL_ADM,
+            name: "NAME_ADM",
+            email: "admin@gmail.com",
             role: 'admin',
             password: PASSWORD_ADM,
         });
